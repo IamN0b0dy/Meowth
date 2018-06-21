@@ -494,11 +494,11 @@ def get_raidtext(type, pkmn, level, member, channel):
         role = discord.utils.get(channel.guild.roles, name=pkmn)
         if role:
             roletest = _("{pokemon} - ").format(pokemon=role.mention)
-            raidtext = _("{roletest} {pkmn} raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!").format(roletest=roletest, pkmn=pkmn.title(), member=member.mention, channel=channel.mention)
+            raidtext = _("{roletest} {pkmn} raid reported by {member} in {channel}! \n\nFor help, react to this message with the question mark").format(roletest=roletest, pkmn=pkmn.title(), member=member.mention, channel=channel.mention)
     elif type == "egg":
-        raidtext = _("Level {level} raid egg reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!").format(level=level, member=member.mention, channel=channel.mention)
+        raidtext = _("Level {level} raid egg reported by {member} in {channel}! \n\nFor help, react to this message with the question mark").format(level=level, member=member.mention, channel=channel.mention)
     elif type == "exraid":
-        raidtext = _("EX raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark and I will DM you a list of commands you can use!").format(member=member.mention, channel=channel.mention)
+        raidtext = _("EX raid reported by {member} in {channel}! Coordinate here!\n\nFor help, react to this message with the question mark").format(member=member.mention, channel=channel.mention)
     return raidtext
 
 async def create_raid_channel(type, pkmn, level, details, report_channel):
@@ -4124,19 +4124,16 @@ async def _raid(message, content):
     else:
         roletest = _("{pokemon} - ").format(pokemon=raid.mention)
     raid_number = pkmn_info['pokemon_list'].index(entered_raid) + 1
-    raid_img_url = 'https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/pkmn/{0}_.png?cache=0'.format(str(raid_number).zfill(3))
+    raid_img_url = 'https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/pkmn/{0}_.png?cache=0'.format(str(raid_number))
     raid_embed = discord.Embed(title=_('Map link:'), url=raid_gmaps_link, colour=message.guild.me.colour)
     if gyms:
         gym_info = _("**Name:** {0}\n**Notes:** {1}").format(raid_details, gym_note)
         raid_embed.add_field(name=_('**Gym:**'), value=gym_info, inline=False)
-    raid_embed.add_field(name=_('**Details:**'), value=_('{pokemon} ({pokemonnumber}) {type}').format(pokemon=entered_raid.capitalize(), pokemonnumber=str(raid_number), type=''.join(get_type(message.guild, raid_number)), inline=True))
-    raid_embed.add_field(name=_('**Weaknesses:**'), value=_('{weakness_list}').format(weakness_list=weakness_to_str(message.guild, get_weaknesses(entered_raid))), inline=True)
-    raid_embed.add_field(name=_('**Next Group:**'), value=_('Set with **!starttime**'), inline=True)
+    raid_embed.add_field(name=_('**Boss:**'), value=('{pokemon}').format(pokemon=entered_raid.capitalize(), pokemonnumber=str(raid_number), type=''.join(get_type(message.guild, raid_number)), inline=True))
     raid_embed.add_field(name=_('**Expires:**'), value=_('Set with **!timerset**'), inline=True)
     raid_embed.set_footer(text=_('Reported by @{author} - {timestamp}').format(author=message.author.display_name, timestamp=timestamp), icon_url=message.author.avatar_url_as(format=None, static_format='jpg', size=32))
-    raid_embed.set_thumbnail(url=raid_img_url)
     report_embed = raid_embed
-    raidreport = await message.channel.send(content=_('{pokemon} raid reported by {member}! Details: {location_details}. Coordinate in {raid_channel}').format(pokemon=entered_raid.capitalize(), member=message.author.mention, location_details=raid_details, raid_channel=raid_channel.mention), embed=report_embed)
+    raidreport = await message.channel.send(content=_('{pokemon} raid reported by {member}! Details: {location_details}.').format(pokemon=entered_raid.capitalize(), member=message.author.mention, location_details=raid_details, raid_channel=raid_channel.mention), embed=report_embed)
     await asyncio.sleep(1)
     raidmsg = _("{roletest}{pokemon} raid reported by {member} in {citychannel}! Details: {location_details}. Coordinate here!\n\nClick the question mark reaction to get help on the commands that work in here.\n\nThis channel will be deleted five minutes after the timer expires.").format(roletest=roletest, pokemon=entered_raid.title(), member=message.author.mention, citychannel=message.channel.mention, location_details=raid_details)
     raidmessage = await raid_channel.send(content=raidmsg, embed=raid_embed)
@@ -4377,9 +4374,7 @@ async def _eggassume(args, raid_channel, author=None):
     raid_number = pkmn_info['pokemon_list'].index(entered_raid) + 1
     raid_img_url = 'https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/pkmn/{0}_.png?cache=0'.format(str(raid_number).zfill(3))
     raid_embed = discord.Embed(title=_('Map link:'), url=raid_gmaps_link, colour=raid_channel.guild.me.colour)
-    raid_embed.add_field(name=_('**Details:**'), value=_('{pokemon} ({pokemonnumber}) {type}').format(pokemon=entered_raid.capitalize(), pokemonnumber=str(raid_number), type=''.join(get_type(raid_channel.guild, raid_number)), inline=True))
-    raid_embed.add_field(name=_('**Weaknesses:**'), value=_('{weakness_list}').format(weakness_list=weakness_to_str(raid_channel.guild, get_weaknesses(entered_raid))), inline=True)
-    raid_embed.add_field(name=_('**Next Group:**'), value=oldembed.fields[2].value, inline=True)
+    raid_embed.add_field(name=_('**Details:**'), value=_('{pokemon}').format(pokemon=entered_raid.capitalize(), pokemonnumber=str(raid_number), type=''.join(get_type(raid_channel.guild, raid_number)), inline=True))
     raid_embed.add_field(name=_('**Hatches:**'), value=oldembed.fields[3].value, inline=True)
     for field in oldembed.fields:
         t = _('team')
@@ -7214,7 +7209,25 @@ async def _wildlist(ctx):
     else:
         listmsg = _(" There are no reported wild pokemon. Report one with **!wild <pokemon> <location>**")
     return listmsg
-
+@Meowth.command
+async def gym(author_id, gym_name, gyms):
+    gym_matching_cog = Meowth.cogs.get('GymMatching')
+    match, score = gym_matching_cog.gym_match(gym_name, gyms)
+    await ctx.send()
+    if not match:
+        return None
+    if score < 80:
+        try:
+            question = _("Did you mean: '{0}'? Reply with 'y' or 'n'.").format(match)
+            q_msg = await channel.send(question)
+        except TypeError:
+            return None
+        gymnamematchask = await Meowth.wait_for('message')
+        print(gymnamematchask)
+        if gymmatchask.content.lower() == 'y':
+            await q_msg.delete()
+            return match
+        return None
 try:
     event_loop.run_until_complete(Meowth.start(config['bot_token']))
 except discord.LoginFailure:
